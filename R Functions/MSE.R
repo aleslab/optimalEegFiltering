@@ -1,4 +1,5 @@
 mse <- function(y_est, y_true) {
-  error <- mean((y_est - y_true)^2)
+  mu <- mean(y_true)
+  error <- mean((y_est - mu)^2)
   return(error)
 }
