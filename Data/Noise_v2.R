@@ -1,13 +1,10 @@
 PatternNoise <- function(i, j, k, mean = 0, sd = 1) {
   N <- array(dim = c(i, j, k))
-  pattern <- matrix(nrow = i, ncol = j)
-  for(m in 1:j){
-    pattern[, m] <- sample(x = c(0,1), size = i, replace = TRUE)
-  }
-  N[, , 1:k] <- pattern
-  Gaussian <- array(rnorm(n = (j * j * k), mean = mean, sd = sd), dim = c(j, j, k))
-  for (m in 1:k){
-    N[, , m] <- N[, , m] %*% Gaussian[, ,m]
-  } 
+  pattern <- matrix(rep(x = c(0,1), times = (i/2)), nrow = i)
+  GNoise <- matrix(rnorm(n = j, mean = 0, sd = 1), ncol = j)
+  patternN <- pattern %*% GNoise
+  N[,, 1:k] <- patternN
   return(N)
 }
+
+Noise.v2 <- PatternNoise(i = 64, j = 600, k = 100)

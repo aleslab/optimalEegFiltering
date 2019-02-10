@@ -1,5 +1,5 @@
 signal <- function(i, j, k) {
-  # the purpose of this function is to simulate the signal of egg data. The input i is
+  # the purpose of this function is to simulate the signal of eeg data. The input i is
   # the number of sensors used to record data, j is the number of time points at which 
   # data is recorded, and k is the number of trials. The function outputs array S 
   # with dimensions i x j x k.

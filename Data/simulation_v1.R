@@ -1,6 +1,6 @@
 # Code for the first version of simulation
 
-simdata <- function(i, j, k) {
+simdata <- function(i, j, k, mean = 0, sd = 1) {
 # the purpose of this function is to simulate eeg data with noise. The input i is the
 # number of sensors used to record data, j is the number of time points at which data 
 # is recorded, and k is the number of trials. The function outputs arrays SignalNoise 
@@ -16,7 +16,7 @@ simdata <- function(i, j, k) {
   for (m in 1:k) {
 
 # create an i x j matrix of Gaussian random noise    
-    N <- matrix(rnorm(i * j, mean = 0, sd = 1), nrow = i, ncol = j)
+    N <- matrix(rnorm(i * j, mean = mean, sd = sd), nrow = i, ncol = j)
 
 # Store the noise matrix in the correct trial of the array  
     SignalNoise[,,m] <- N
@@ -28,3 +28,5 @@ simdata <- function(i, j, k) {
 # return the array of simulated data
 return(SignalNoise)
 }
+
+scenario.v1 <- simdata(i = 64, j = 600, k = 100)
