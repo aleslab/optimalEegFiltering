@@ -1,3 +1,5 @@
+set.seed(123)
+
 scenario.v1.average <- apply(X = scenario.v1, MARGIN = c(1,2), FUN = mean)
 MSE.v1.average <- mse(scenario.v1.average, signal(i = 64, j = 600, k = 1))
 
