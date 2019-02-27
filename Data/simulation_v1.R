@@ -19,7 +19,7 @@ simdata <- function(i, j, k, mean = 0, sd = 1) {
     N <- matrix(rnorm(i * j, mean = mean, sd = sd), nrow = i, ncol = j)
 
 # Store the noise matrix in the correct trial of the array  
-    SignalNoise[,,m] <- N
+    SignalNoise[,,m] <- N*.5
   }
 
 # Add the signal array to the noise array
