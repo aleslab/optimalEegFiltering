@@ -1,26 +1,33 @@
 # Code for the first version of simulation
 
-simdata <- function(i, j, k, mean = 0, sd = 1) {
+simdata <- function(i, j, k, mean = 0, sd = 1, p = 1) {
 # the purpose of this function is to simulate eeg data with noise. The input i is the
 # number of sensors used to record data, j is the number of time points at which data 
-# is recorded, and k is the number of trials. The function outputs arrays SignalNoise 
-# with dimensions i x j x k.
+# is recorded, and k is the number of trials. The mean and sd allow you to alter the 
+# distribution of the Gaussian noise and p is a factor to alter the power of the noise
+# The function outputs arrays SignalNoise with dimensions i x j x k.
+
+# input checks
+  if (is.numeric(i) == FALSE | is.numeric(j) == FALSE | is.numeric(k) == FALSE |
+      is.numeric(mean) == FALSE | is.numeric(sd) == FALSE | is.numeric(p) == FALSE) {
+        stop("Non-numeric arguments")
+  }
+  
+  if (i <= 0 | j <= 0 | k <= 0 | sd <= 0 | p <= 0) {stop("Non-positive arguments")}
+  
+  if (i != round(i) | j != round(j) | k != round(k)) {stop("Non-integer arguments")}
 
 # create results objects with correct dimensions  
   SignalNoise <- array(dim = c(i, j, k))
   
-  # create a signal matrix 
+# create a signal matrix 
   X <- signal(i = i, j = j, k = k)
-  
-# create a loop to generate the data for each trial, which at this stage are all the same  
-  for (m in 1:k) {
 
-# create an i x j matrix of Gaussian random noise    
-    N <- matrix(rnorm(i * j, mean = mean, sd = sd), nrow = i, ncol = j)
+# create an appropriately sized array of Gaussian random noise    
+  N <- array(rnorm(i * j * k, mean = mean, sd = sd), dim = c(i, j, k))
 
-# Store the noise matrix in the correct trial of the array  
-    SignalNoise[,,m] <- N*.5
-  }
+# Add the noise to the array  
+  SignalNoise <- N * p
 
 # Add the signal array to the noise array
   SignalNoise <- SignalNoise + X
@@ -29,4 +36,4 @@ simdata <- function(i, j, k, mean = 0, sd = 1) {
 return(SignalNoise)
 }
 
-scenario.v1 <- simdata(i = 64, j = 600, k = 100)
+scenario.v1 <- simdata(i = 64, j = 600, k = 100, p = 0.5)

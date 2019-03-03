@@ -1,12 +1,12 @@
 set.seed(123)
 
 
-#scenario.v1.average <- apply(X = scenario.v1, MARGIN = c(1,2), FUN = mean)
+# Scenario 1 Results
 scenario.v1.average <-rowMeans(scenario.v1,dims=2)
 MSE.v1.average <- mse(scenario.v1.average, drop(signal(i = 64, j = 600, k = 1)))
 
-RNoise <- array(rnorm(64 * 600*100, mean = 0, sd = 1), dim = c(64, 600, 100))
-RNoise <- RNoise *.5
+RNoise <- array(rnorm(64 * 600 * 100, mean = 0, sd = 1), dim = c(64, 600, 100))
+RNoise <- RNoise * .5
 
 scenario.v1.filter <- GSVD_filter(scenario.v1, RNoise)
 scenario.v1.avefilter <-rowMeans(scenario.v1.filter,dims=2)
@@ -14,7 +14,7 @@ MSE.v1.filter <- mse(scenario.v1.avefilter, drop(signal(i = 64, j = 600, k = 1))
 
 
 
-#Scenario 2
+#Scenario 2 results
 scenario.v2.average <- apply(X = scenario.v2, MARGIN = c(1,2), FUN = mean)
 MSE.v2.average <- mse(scenario.v2.average, drop(signal(i = 64, j = 600, k = 1)))
 

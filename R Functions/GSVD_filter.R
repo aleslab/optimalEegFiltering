@@ -1,6 +1,6 @@
 GSVD_filter <- function(signalnoise, noise) {
 # Purpose: to create a gsvd based filter to apply to an array containing both signal
-#  and noise that leaves behind an estimate of the signal
+# and noise that leaves behind an estimate of the signal
 # Inputs:
 # signalnoise: the array containing both the signal and noise information
 # noise: an array containing just noise information
@@ -15,39 +15,45 @@ GSVD_filter <- function(signalnoise, noise) {
   m <- nrow(signalnoise)
   p <- nrow(noise)
 
+# altering dimensions of inputs to be in correct form for decomposition
   origDim <- dim(signalnoise)
-  dim(signalnoise) <- c(origDim[1],origDim[2]*origDim[3])
-  signalnoise<-t(signalnoise)
-  origDim <- dim(noise)
-  dim(noise) <- c(origDim[1],origDim[2]*origDim[3])
-  noise<-t(noise)
-# Decompose the two matrices using gsvd  
+  dim(signalnoise) <- c(origDim[1], origDim[2] * origDim[3])
+  signalnoise <- t(signalnoise)
   
+  origDim <- dim(noise)
+  dim(noise) <- c(origDim[1], origDim[2] * origDim[3])
+  noise <- t(noise)
+  
+# QR decomposition of the two matrices to get correct form for GSVD
   qrNoise <-qr(noise)
   rNoise <-qr.R(qrNoise)
-  
+  for (i in 1:length(rNoise)) {
+    if (is.nan(rNoise[i]) == TRUE | is.infinite(rNoise[i]) == TRUE | 
+        is.na(rNoise[i]) == TRUE) {rNoise[i] <- 0}
+  }
+
+# Extracting neccessary results from QR decomposition 
   qrSignal <- qr(signalnoise)
   rSignal  <- qr.R(qrSignal)
   
-#  decomposition <- gsvd(signalnoise, noise)
+# Perform gsvd on two matrices
   decomposition <- gsvd(rSignal, rNoise)
-# Extract the generalized singular values and elimiate any non-real values
 
 # The weighting is  1- Noise/Signal ratio
   #WARNING THE WEIGHT Does not Incorparate matrix size yet! 
   #I left that out so if more/less noise samples than signal these weights will be wrong.
   
-  
+ # Extract the generalized singular values and elimiate any non-real values 
   gsvalues <- 1-((decomposition$beta) ^ 2 / (decomposition$alpha) ^ 2)
   
   gsvalues <- gsvalues[which(is.nan(gsvalues) == FALSE & is.infinite(gsvalues) == FALSE)]
-  #Anything with negative values gets clamped to 1.  
+ 
+#Anything with negative values gets clamped to 1.  
   gsvalues <-pmax(0,gsvalues)
   
   
 # Extract the Q matrix from the decomposition and find the inverse 
-  #The Q matrix needed for calculating the filter differs because of the R version of the gsvd
-  Q <- gsvd.R(decomposition)%*%t(decomposition$Q)
+  Q <- gsvd.R(decomposition) %*% t(decomposition$Q)
   Qinverse <- solve(Q)
 
 # Create the filter based on formula from research
@@ -57,11 +63,12 @@ GSVD_filter <- function(signalnoise, noise) {
   #1) Project signal onto the different filters found from gsvd (Q)
   #2) Weight these signals by the signal to noise ratio  (gsvalues)
   #3) Reconstruct the original signal incorporating the SNR weights (QInverse)
-  Wfilter <-  t(Q)%*%diag(gsvalues)%*%t(Qinverse)
-# Apply filter to data and return signal estimate  
+  Wfilter <-  t(Q) %*% diag(gsvalues) %*% t(Qinverse)
+  
+# Apply filter to data and return signal estimate with original dimensions
   xhat <- signalnoise %*% Wfilter
   xhat <- t(xhat)
-  dim(xhat)<-origDim
+  dim(xhat) <- origDim
   
   return (xhat)
 }
