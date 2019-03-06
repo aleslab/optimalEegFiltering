@@ -2,7 +2,7 @@ set.seed(123)
 
 
 # Scenario 1 Results
-scenario.v1.average <-rowMeans(scenario.v1,dims=2)
+scenario.v1.average <-rowMeans(scenario.v1, dims=2)
 MSE.v1.average <- mse(scenario.v1.average, drop(signal(i = 64, j = 600, k = 1)))
 
 RNoise <- array(rnorm(64 * 600 * 100, mean = 0, sd = 1), dim = c(64, 600, 100))
