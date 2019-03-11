@@ -69,5 +69,7 @@ Extract_GSVD_filter <- function(signalnoise, noise) {
   #3) Reconstruct the original signal incorporating the SNR weights (QInverse)
   Wfilter <-  t(Q) %*% diag(gsvalues) %*% t(Qinverse)
   
-  return (Wfilter)
+  #Need to transpose the output filter because we transpose the inputs coming into this function
+  #For this filter to apply to the stuff before we transpose inside this function
+  return (t(Wfilter))
 }
