@@ -1,3 +1,5 @@
+library("geigen")
+
 GSVD_filter <- function(signalnoise, noise) {
 # Purpose: to create a gsvd based filter to apply to an array containing both signal
 # and noise that leaves behind an estimate of the signal
@@ -70,7 +72,7 @@ GSVD_filter <- function(signalnoise, noise) {
   Wfilter <-  t(Q) %*% diag(gsvalues) %*% t(Qinverse)
   
 # Apply filter to data and return signal estimate with original dimensions
-  xhat <- signalnoise %*% Wfilter
+  xhat <- signalnoise %*% t(Wfilter)
   xhat <- t(xhat)
   dim(xhat) <- origDim
   
