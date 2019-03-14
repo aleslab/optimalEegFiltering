@@ -32,4 +32,3 @@ PatternNoise <- function(i, j, k, mean = 0, sd = 1, p = 1) {
   return(N)
 }
 
-Noise.v2 <- PatternNoise(i = 64, j = 600, k = 100)

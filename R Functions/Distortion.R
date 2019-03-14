@@ -6,7 +6,7 @@ distortion <- function(signal, signalnoise, noise) {
   dim(signal) <- c(origDim[1], origDim[2] * origDim[3])
   signal <- t(signal)
   
-  filtered_signal <- signal %*% filter
+  filtered_signal <- signal %*% t(filter)
   filtered_signal <- t(filtered_signal)
   dim(filtered_signal) <- origDim
   
@@ -14,5 +14,5 @@ distortion <- function(signal, signalnoise, noise) {
   
   d <- mean((average_filter - signal)^2)
   
-  return(d)
+  return(filtered_signal)
 }

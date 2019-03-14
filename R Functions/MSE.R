@@ -4,7 +4,6 @@ mse <- function(y_est, y_true) {
 # value and the other being an estimate. The output is a value that quantifies the 
 # mean squared error
 
-
 # average the squared difference of the estimate and the true value
   error <- mean((y_est - y_true)^2)
   

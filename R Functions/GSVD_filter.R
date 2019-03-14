@@ -48,12 +48,12 @@ GSVD_filter <- function(signalnoise, noise) {
   #I left that out so if more/less noise samples than signal these weights will be wrong.
   
  # Extract the generalized singular values and elimiate any non-real values 
-  gsvalues <- 1-((decomposition$beta) ^ 2 / (decomposition$alpha) ^ 2)
+  gsvalues <- 1 - ((decomposition$beta ^ 2) / (decomposition$alpha ^ 2))
   
   gsvalues <- gsvalues[which(is.nan(gsvalues) == FALSE & is.infinite(gsvalues) == FALSE)]
  
 #Anything with negative values gets clamped to 1.  
-  gsvalues <-pmax(0,gsvalues)
+  gsvalues <-pmax(0, gsvalues)
   
   
 # Extract the Q matrix from the decomposition and find the inverse 
