@@ -1,11 +1,12 @@
-install.packages("ggplot2")
+#install.packages("ggplot2")
 library(ggplot2)
 library(scales)
 
-ggplot(data = Scenario2.table, aes(x = as.factor(Trials), y = MSE)) +
-  geom_point(aes(color = as.factor(Method))) +
+#NOTE: 
+ggplot(data = Scenario2.table, aes(x = Trials, y = MSE) ) +
+  geom_point(aes(color = Method)) +
   facet_wrap(~ as.factor(Noise), nrow = 2) +
-  theme_minimal() +
+  #theme_minimal() +
   labs(title = "MSE Comparison Between Methods as Function of Number of Trials 
        Faceted by Noise Level for Scenario 2", x = "Number of Trials", y = "MSE", color = "Method") +
   theme(plot.title = element_text(hjust = 0.5))

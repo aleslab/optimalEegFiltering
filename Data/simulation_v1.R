@@ -13,7 +13,9 @@ simdata <- function(i, j, k, mean = 0, sd = 1, p = 1) {
         stop("Non-numeric arguments")
   }
   
-  if (i <= 0 | j <= 0 | k <= 0 | sd <= 0 | p <= 0) {stop("Non-positive arguments")}
+  if (i <= 0 | j <= 0 | k <= 0 | sd <= 0 ) {stop("Non-positive arguments")}
+  
+  if (p<0) {stop("Noise cannot be negative")}
   
   if (i != round(i) | j != round(j) | k != round(k)) {stop("Non-integer arguments")}
 
