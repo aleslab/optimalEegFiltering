@@ -15,7 +15,7 @@ simdata <- function(i, j, k, mean = 0, sd = 1, p = 1) {
   
   if (i <= 0 | j <= 0 | k <= 0 | sd <= 0 ) {stop("Non-positive arguments")}
   
-  if (p<0) {stop("Noise cannot be negative")}
+  if (p < 0) {stop("Noise cannot be negative")}
   
   if (i != round(i) | j != round(j) | k != round(k)) {stop("Non-integer arguments")}
 
@@ -37,5 +37,3 @@ simdata <- function(i, j, k, mean = 0, sd = 1, p = 1) {
 # return the array of simulated data
 return(SignalNoise)
 }
-
-scenario.v1 <- simdata(i = 64, j = 600, k = 100, p = 0.5)

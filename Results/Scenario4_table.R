@@ -1,12 +1,12 @@
 set.seed(123)
 
 #initialize some variables to hold output
-Scenario2_allGsvdMse <-data.frame()
-Scenario2_allMeanMse <- data.frame()
-Scenario2_allGsvdError <- data.frame()
-Scenario2_allGsvdSNR <- data.frame()
-Scenario2_allGsvdSDI <- data.frame()
-Scenario2_allGsvdNRfactor <- data.frame()
+Scenario4_allGsvdMse <-data.frame()
+Scenario4_allMeanMse <- data.frame()
+Scenario4_allGsvdError <- data.frame()
+Scenario4_allGsvdSNR <- data.frame()
+Scenario4_allGsvdSDI <- data.frame()
+Scenario4_allGsvdNRfactor <- data.frame()
 
 nElec <- 64 
 nTime <- 600
@@ -14,14 +14,14 @@ trialList <-c(25, 50, 100, 200, 400)
 noiseList <-c(5, 10, 20)
 for (nTrials in trialList) {
   for (noiseLevel in noiseList) {
-        print(c(nTrials, noiseLevel))
+    print(c(nTrials, noiseLevel))
     
     #Generate a simulation
     thisSignal <-  simdata(i = 64, j = 600, k = nTrials, p = 0)
-    thisPatternNoiseForSignal <- PatternNoise(i = 64, j = 600, k = nTrials, p = noiseLevel)
+    thisPatternNoiseForSignal <- SpatialTemporalNoise(i = 64, j = 600, k = nTrials, p = noiseLevel)
     thisWhiteNoiseForSignal <-  array(rnorm(nElec * nTime * nTrials, mean = 0, sd = .01), dim = c(nElec, nTime, nTrials))
     
-    patternForNoiseOnly <- PatternNoise(i = 64, j = 600, k = nTrials, p = noiseLevel)
+    patternForNoiseOnly <- SpatialTemporalNoise(i = 64, j = 600, k = nTrials, p = noiseLevel)
     whiteForNoiseOnly <-  array(rnorm(nElec * nTime * nTrials, mean = 0, sd = .01), dim = c(nElec, nTime, nTrials))
     
     thisNoise <- thisPatternNoiseForSignal+thisWhiteNoiseForSignal
@@ -53,35 +53,34 @@ for (nTrials in trialList) {
     thisNRfactor <- thisOriginal / thisResidual
     
     #These vectors aren't the nicest. Data Frame is Better. 
-    Scenario2_allGsvdSNR <- rbind(Scenario2_allGsvdSNR, data.frame("Condition" =
-                          "Input", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
-                          "SNR" = thisInSNR))
-    Scenario2_allGsvdSNR <- rbind(Scenario2_allGsvdSNR, data.frame("Condition" =
-                            "Output", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
-                            "SNR" = thisOutSNR))
-    Scenario2_allGsvdSDI <- rbind(Scenario2_allGsvdSDI, data.frame("Trials" = nTrials, 
-                            "NoiseLevel" = noiseLevel, "SDI"= thisSDI))
-    Scenario2_allGsvdNRfactor <- rbind(Scenario2_allGsvdNRfactor, data.frame("Trials" = nTrials, 
-                                "NoiseLevel" = noiseLevel, "NoiseReduction" = thisNRfactor))
-    Scenario2_allGsvdMse <-rbind(Scenario2_allGsvdMse, data.frame("Method" = "gsvd", 
+    Scenario4_allGsvdSNR <- rbind(Scenario4_allGsvdSNR, data.frame("Condition" =
+                             "Input", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
+                             "SNR" = thisInSNR))
+    Scenario4_allGsvdSNR <- rbind(Scenario4_allGsvdSNR, data.frame("Condition" =
+                             "Output", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
+                             "SNR" = thisOutSNR))
+    Scenario4_allGsvdSDI <- rbind(Scenario4_allGsvdSDI, data.frame("Trials" = nTrials, 
+                             "NoiseLevel" = noiseLevel, "SDI"= thisSDI))
+    Scenario4_allGsvdNRfactor <- rbind(Scenario4_allGsvdNRfactor, data.frame("Trials" = nTrials, 
+                                 "NoiseLevel" = noiseLevel, "NoiseReduction" = thisNRfactor))
+    Scenario4_allGsvdMse <-rbind(Scenario4_allGsvdMse, data.frame("Method" = "gsvd", 
                           "Trials" = nTrials, "NoiseLevel" = noiseLevel, "MSE" = thisFilteredMSE))
-    Scenario2_allGsvdError <-rbind(Scenario2_allGsvdError, data.frame("Partial" = "Distortion", "Trials" = nTrials, 
-                                  "NoiseLevel" = noiseLevel, "PercentError" = (thisDistortion / (thisDistortion + thisResidual)) * 100))
-    Scenario2_allGsvdError<- rbind(Scenario2_allGsvdError, data.frame("Partial" = "ResidualNoise", "Trials" = nTrials,
-                                      "NoiseLevel" = noiseLevel, "PercentError" = (thisResidual / (thisDistortion + thisResidual)) * 100))
-   
+    Scenario4_allGsvdError <-rbind(Scenario4_allGsvdError, data.frame("Partial" = "Distortion", "Trials" = nTrials, 
+                             "NoiseLevel" = noiseLevel, "PercentError" = (thisDistortion / (thisDistortion + thisResidual)) * 100))
+    Scenario4_allGsvdError<- rbind(Scenario4_allGsvdError, data.frame("Partial" = "ResidualNoise", "Trials" = nTrials,
+                            "NoiseLevel" = noiseLevel, "PercentError" = (thisResidual / (thisDistortion + thisResidual)) * 100))
+    
     
     #Calculate the values if NO filtering is applied
     thisMeanMSE <- mse(thisSignalPlusNoiseMean,thisSignalMean)
     
     #Distortion doesn't make sense to do. Since no filtering is applied by definition
     #no distortion. 
-    Scenario2_allMeanMse <-rbind(Scenario2_allMeanMse, data.frame("Method" = "Averaging",
+    Scenario4_allMeanMse <-rbind(Scenario4_allMeanMse, data.frame("Method" = "Averaging",
                            "Trials" = nTrials, "NoiseLevel" = noiseLevel, "MSE" = thisMeanMSE))
   }
   
 }
 
-Scenario2_MSE <- data.frame()
-Scenario2_MSE <- rbind(Scenario2_allGsvdMse, Scenario2_allMeanMse)
-
+Scenario4_MSE <- data.frame()
+Scenario4_MSE <- rbind(Scenario4_allGsvdMse, Scenario4_allMeanMse)

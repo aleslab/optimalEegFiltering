@@ -106,11 +106,12 @@ diagp <- function(Y,X) {
 # unimodular factors to make the k-th diagonal of X real and positive.
 D <- diag(X)
 
-j = which( D< 0)
-j = which( (Re(D) < 0) | Im(D) != 0)
-D = diag(Conj(D[j])/Mod(D[j]))
+j = which(D < 0)
+j = which((Re(D) < 0) | Im(D) != 0)
+D = diag(Conj(D[j]) / Mod(D[j]))
+
 Y[,j] = Y[,j] %*% t(D)
 X[j,] = D %*% X[j,]
-return(list(Y=Y,X=
-              X))
+
+return(list(Y = Y, X = X))
 }
