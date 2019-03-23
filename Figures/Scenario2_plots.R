@@ -4,25 +4,19 @@ library(scales)
 
 ggplot(data = Scenario2_MSE, aes(x = as.factor(Trials), y = MSE, color = Method)) +
   geom_point() +
-  facet_wrap(~ as.factor(NoiseLevel), nrow = 2, scales = "free_y") +
+  facet_wrap(~ as.factor(NoiseLevel), nrow = 1, scales = "free_y") +
   theme_minimal() +
   labs(title = "MSE Comparison Between Methods as Function of Number of Trials 
        Faceted by Noise Level for Scenario 2", x = "Number of Trials", y = "MSE", color = "Method") +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.3))
 
 ggplot(data = Scenario2_allGsvdError, aes(x = as.factor(Trials), y = PercentError, fill = Partial)) +
   geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~ as.factor(NoiseLevel), nrow = 1, scales = "free_y") +
   theme_minimal() +
-  labs(title = "Error Breakdown Averaged Over Noise Levels for Scenario 2", x = "Number of Trials",
-       y = " Percent of Error", fill = "Part of Error") +
-  theme(plot.title = element_text(hjust = 0.5))
-
-ggplot(data = Scenario2_allGsvdError, aes(x = as.factor(NoiseLevel), y = PercentError, fill = Partial)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  theme_minimal() +
-  labs(title = "Error Breakdown Averaged Over Trial Number for Scenario 2", x = "Noise Level",
-       y = " Percent of Error", fill = "Part of Error") +
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(title = "Breakdown of MSE by Trial Size Faceted by Noise Level for Scenario 2", x = "Number of Trials",
+       y = " Percent of MSE", fill = "Part of MSE") +
+  theme(plot.title = element_text(hjust = 0.2))
 
 ggplot(data = Scenario2_allGsvdSDI, aes(x = as.factor(Trials), y = SDI, color = as.factor(NoiseLevel))) +
   geom_point() +
@@ -34,6 +28,7 @@ ggplot(data = Scenario2_allGsvdSDI, aes(x = as.factor(Trials), y = SDI, color = 
 ggplot(data = Scenario2_allGsvdNRfactor, aes(x = as.factor(Trials), y = NoiseReduction, color = as.factor(NoiseLevel))) +
   geom_point() +
   theme_minimal() +
+  scale_y_continuous(limits = c(0, 25000)) +
   labs(title = "Noise Reduction in Scenario 2", x = "Number of Trials", 
        y = "Noise Reduction Factor", color = "Noise Level") +
   theme(plot.title = element_text(hjust = 0.5))

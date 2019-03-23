@@ -1,10 +1,10 @@
-install.packages("ggplot2")
+
 library(ggplot2)
 library(scales)
 
 ggplot(data = Scenario1_MSE, aes(x = as.factor(Trials), y = MSE, color = Method)) +
   geom_point() +
-  facet_wrap(~ as.factor(NoiseLevel), nrow = 2) +
+  facet_wrap(~ as.factor(NoiseLevel), nrow = 1, scales = "free_y") +
   theme_minimal() +
   labs(title = "MSE Comparison Between Methods as Function of Number of Trials 
        Faceted by Noise Level for Scenario 1", x = "Number of Trials", y = "MSE", color = "Method") +
@@ -12,17 +12,12 @@ ggplot(data = Scenario1_MSE, aes(x = as.factor(Trials), y = MSE, color = Method)
 
 ggplot(data = Scenario1_allGsvdError, aes(x = as.factor(Trials), y = PercentError, fill = Partial)) +
   geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~ as.factor(NoiseLevel), nrow = 1, scales = "free_y") +
   theme_minimal() +
-  labs(title = "Error Breakdown Averaged Over Noise Levels for Scenario 1", x = "Number of Trials",
-       y = " Percent of Error", fill = "Part of Error") +
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(title = "Breakdown of MSE by Trial Size Faceted by Noise Level for Scenario 1", x = "Number of Trials",
+       y = " Percent of MSE", fill = "Part of MSE") +
+  theme(plot.title = element_text(hjust = 0.2))
 
-ggplot(data = Scenario1_allGsvdError, aes(x = as.factor(NoiseLevel), y = PercentError, fill = Partial)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  theme_minimal() +
-  labs(title = "Error Breakdown Averaged Over Trial Number for Scenario 1", x = "Noise Level",
-       y = " Percent of Error", fill = "Part of Error") +
-  theme(plot.title = element_text(hjust = 0.5))
 
 ggplot(data = Scenario1_allGsvdSDI, aes(x = as.factor(Trials), y = SDI, color = as.factor(NoiseLevel))) +
   geom_point() +
