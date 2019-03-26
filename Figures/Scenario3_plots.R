@@ -1,14 +1,17 @@
+# load graphing packages
 library(ggplot2)
 library(scales)
 
+#create MSE plot
 ggplot(data = Scenario3_MSE, aes(x = as.factor(Trials), y = MSE, color = Method)) +
   geom_point() +
   facet_wrap(~ as.factor(NoiseLevel), nrow = 1, scales = "free_y") +
   theme_minimal() +
   labs(title = "MSE Comparison Between Methods as Function of Number of Trials 
        Faceted by Noise Level for Scenario 3", x = "Number of Trials", y = "MSE", color = "Method") +
-  theme(plot.title = element_text(hjust = 0.4))
+  theme(plot.title = element_text(hjust = 0.3))
 
+# create MSE breakdown plot
 ggplot(data = Scenario3_allGsvdError, aes(x = as.factor(Trials), y = PercentError, fill = Partial)) +
   geom_bar(stat = "identity", position = "dodge") +
   facet_wrap(~ as.factor(NoiseLevel), nrow = 1, scales = "free_y") +
@@ -17,6 +20,7 @@ ggplot(data = Scenario3_allGsvdError, aes(x = as.factor(Trials), y = PercentErro
        y = " Percent of MSE", fill = "Part of MSE") +
   theme(plot.title = element_text(hjust = 0.2))
 
+# create SDI plot
 ggplot(data = Scenario3_allGsvdSDI, aes(x = as.factor(Trials), y = SDI, color = as.factor(NoiseLevel))) +
   geom_point() +
   theme_minimal() +
@@ -24,6 +28,7 @@ ggplot(data = Scenario3_allGsvdSDI, aes(x = as.factor(Trials), y = SDI, color = 
        y = "Signal Distortion Index", color = "Noise Level") +
   theme(plot.title = element_text(hjust = 0.5))
 
+#create noise reduction factor plot
 ggplot(data = Scenario3_allGsvdNRfactor, aes(x = as.factor(Trials), y = NoiseReduction, color = as.factor(NoiseLevel))) +
   geom_point() +
   theme_minimal() +

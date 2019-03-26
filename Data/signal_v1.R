@@ -19,16 +19,16 @@ signal <- function(i, j, k) {
 # create a signal matrix where Xt is 1 at the times the signal is anticipated (after 
 # stimulus presentation) and 0 when there is no signal. And Xs is 1 when the sensor
 # is picking up a signal and 0 when it's not. Multiply these two 1 dimensional matrices
- # together to get the overall signal matrix X
+# together to get the overall signal matrix X
   Xt <- matrix(data = c(rep(0, times = j/3), rep(1, times = j/3), rep(0, 
                   times = j/3)), nrow = 1, ncol = j)
   Xs <- matrix(data = c(rep(0, times = i/4), rep(1, times = i/2), rep(0, 
                   times = i/4)), nrow = i, ncol = 1)
   X <- Xs %o% Xt
     
-    # Add signal to the correct trial in an array 
+# Add signal to the each trial in the results array 
   S[,,1:k] <- X
 
-  # return the array of simulated data
+# return the array of simulated signal
   return(S)
 }

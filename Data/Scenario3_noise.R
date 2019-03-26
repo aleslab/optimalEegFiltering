@@ -30,16 +30,22 @@ MultiPatternNoise <- function(i, j, k, mean = 0, sd = 1, p = 1) {
   pattern8 <- rep(x = c(0, 0, 0, 1), times = (i / 4))
   pattern <- matrix(c(pattern1, pattern2, pattern3, pattern4, pattern5, pattern6,
                       pattern7, pattern8), nrow = i, ncol = 8)
+ 
+# loop to generate pattern for each trial 
+  for (iTrial in 1:k) {
+    
+    # create matrix of random noise
+    GNoise <- matrix(rnorm(n = j * 8, mean = 0, sd = 1), nrow = 8, ncol = j)
+    
+    # Multiple pattern vector by random noise 
+    patternN <- pattern %*% GNoise
+    
+    # Add pattern to trial of the array
+    N[,,iTrial] <- patternN * p
   
-  # create matrix of random noise
-  GNoise <- matrix(rnorm(n = (8 * j), mean = 0, sd = 1), nrow = 8, ncol = j)
-  
-  # Multiply pattern vector by random noise 
-  patternN <- pattern %*% GNoise
-  
-  # Add same pattern to each trial of the array
-  N[,, 1:k] <- patternN * p
-  
+  }
+
+# Return Rank 8 patterned noise
   return(N)
 }
 

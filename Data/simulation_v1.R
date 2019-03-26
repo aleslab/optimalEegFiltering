@@ -1,7 +1,7 @@
-# Code for the first version of simulation
+# Code for the first simulation scenario
 
 simdata <- function(i, j, k, mean = 0, sd = 1, p = 1) {
-# the purpose of this function is to simulate eeg data with noise. The input i is the
+# the purpose of this function is to simulate eeg data with random noise. The input i is the
 # number of sensors used to record data, j is the number of time points at which data 
 # is recorded, and k is the number of trials. The mean and sd allow you to alter the 
 # distribution of the Gaussian noise and p is a factor to alter the power of the noise
@@ -28,7 +28,7 @@ simdata <- function(i, j, k, mean = 0, sd = 1, p = 1) {
 # create an appropriately sized array of Gaussian random noise    
   N <- array(rnorm(i * j * k, mean = mean, sd = sd), dim = c(i, j, k))
 
-# Add the noise to the array  
+# Add the noise multiplied by the noise power factor to the array  
   SignalNoise <- N * p
 
 # Add the signal array to the noise array

@@ -1,3 +1,4 @@
+#set seed for consistent results
 set.seed(123)
 
 #initialize some variables to hold output
@@ -7,16 +8,21 @@ Scenario3_allGsvdError <- data.frame()
 Scenario3_allGsvdSNR <- data.frame()
 Scenario3_allGsvdSDI <- data.frame()
 Scenario3_allGsvdNRfactor <- data.frame()
+Scenario3_allGsvdSNRDiff <- data.frame()
 
+#set variables for simulations
 nElec <- 64 
 nTime <- 600
 trialList <-c(25, 50, 100, 200, 400)
 noiseList <-c(5, 10, 20)
+
+# loop to generate all results
 for (nTrials in trialList) {
   for (noiseLevel in noiseList) {
+# print to track progress of loop
     print(c(nTrials, noiseLevel))
     
-    #Generate a simulation
+#Generate a simulation
     thisSignal <-  simdata(i = 64, j = 600, k = nTrials, p = 0)
     thisPatternNoiseForSignal <- MultiPatternNoise(i = 64, j = 600, k = nTrials, p = noiseLevel)
     thisWhiteNoiseForSignal <-  array(rnorm(nElec * nTime * nTrials, mean = 0, sd = .01), dim = c(nElec, nTime, nTrials))
@@ -28,13 +34,13 @@ for (nTrials in trialList) {
     thisSignalPlusNoise <- thisSignal + thisNoise
     noiseOnlyData <- patternForNoiseOnly+whiteForNoiseOnly
     
-    #Analyze output
+#Apply filter to data
     filter <- Extract_GSVD_filter(thisSignalPlusNoise, noiseOnlyData)
     filteredSignalPlusNoise <- applyFilterTo3dData(filter, thisSignalPlusNoise)
     filteredSignal <- applyFilterTo3dData(filter, thisSignal)
     filteredNoise <-  applyFilterTo3dData(filter, thisNoise)
     
-    #Take mean over trials.  
+#Take mean over trials.  
     thisSignalMean <- rowMeans(thisSignal, dims = 2)
     thisSignalPlusNoiseMean <- rowMeans(thisSignalPlusNoise, dims = 2)
     thisNoiseMean <- rowMeans(thisNoise, dims = 2)
@@ -42,7 +48,7 @@ for (nTrials in trialList) {
     filteredSignal <- rowMeans(filteredSignal, dims = 2) 
     filteredSignalNoise <- rowMeans(filteredNoise, dims = 2) 
     
-    #Calculate some values about the GSVD filtered data
+#Calculate measures for the GSVD filtered data
     thisFilteredMSE <- mse(filteredSignalPlusNoise, thisSignalMean)
     thisDistortion <- mse(filteredSignal, thisSignalMean)
     thisResidual <- mean(filteredSignalNoise^2)
@@ -52,13 +58,15 @@ for (nTrials in trialList) {
     thisSDI <- thisDistortion / mean(thisSignal^2)
     thisNRfactor <- thisOriginal / thisResidual
     
-    #These vectors aren't the nicest. Data Frame is Better. 
+#store measures in data frames for graphing 
     Scenario3_allGsvdSNR <- rbind(Scenario3_allGsvdSNR, data.frame("Condition" =
                           "Input", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
                            "SNR" = thisInSNR))
     Scenario3_allGsvdSNR <- rbind(Scenario3_allGsvdSNR, data.frame("Condition" =
                            "Output", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
                             "SNR" = thisOutSNR))
+    Scenario3_allGsvdSNRDiff <- rbind(Scenario3_allGsvdSNRDiff, data.frame("Trials" = nTrials,
+                                "NoiseLevel" = noiseLevel, "Difference" = thisInSNR - thisOutSNR))
     Scenario3_allGsvdSDI <- rbind(Scenario3_allGsvdSDI, data.frame("Trials" = nTrials, 
                             "NoiseLevel" = noiseLevel, "SDI"= thisSDI))
     Scenario3_allGsvdNRfactor <- rbind(Scenario3_allGsvdNRfactor, data.frame("Trials" = nTrials, 
@@ -71,16 +79,14 @@ for (nTrials in trialList) {
                              "NoiseLevel" = noiseLevel, "PercentError" = (thisResidual / (thisDistortion + thisResidual)) * 100))
     
     
-    #Calculate the values if NO filtering is applied
+#Calculate the values if NO filtering is applied
     thisMeanMSE <- mse(thisSignalPlusNoiseMean,thisSignalMean)
-    
-    #Distortion doesn't make sense to do. Since no filtering is applied by definition
-    #no distortion. 
     Scenario3_allMeanMse <-rbind(Scenario3_allMeanMse, data.frame("Method" = "Averaging",
                            "Trials" = nTrials, "NoiseLevel" = noiseLevel, "MSE" = thisMeanMSE))
   }
   
 }
 
+# Combine MSE into one data frame for graphing
 Scenario3_MSE <- data.frame()
 Scenario3_MSE <- rbind(Scenario3_allGsvdMse, Scenario3_allMeanMse)

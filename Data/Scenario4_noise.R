@@ -39,16 +39,22 @@ SpatialTemporalNoise <- function(i, j, k, mean = 0, sd = 1, p = 1) {
   t7 <- rep(x = c(0, 0, 1, 0), times = (j / 4))
   t8 <- rep(x = c(0, 0, 0, 1), times = (j / 4))
   tpattern <- matrix(c(t1, t2, t3, t4, t5, t6, t7, t8), nrow = 8, ncol = j, byrow = TRUE)
-  
-  # create matrix of random noise
-  GNoise <- matrix(rnorm(n = (i * j), mean = 0, sd = 1), nrow = i, ncol = j)
-  
-  # Multiply pattern vector by random noise 
-  patternN <- (spattern %*% tpattern) + GNoise
-  
-  # Add same pattern to each trial of the array
-  N[,, 1:k] <- patternN * p
-  
+
+  # loop to generate pattern for each trial 
+  for (iTrial in 1:k) {
+    
+    # create matrix of random noise
+    GNoise <- matrix(rnorm(n = (i * j), mean = 0, sd = 1), nrow = i, ncol = j)
+    
+    # Multiple pattern vector by random noise 
+    patternN <- (spattern %*% tpattern) + GNoise
+    
+    # Add pattern to trial of the array
+    N[,,iTrial] <- patternN * p
+    
+  }  
+
+# Return matrix of spatial-temporal pattern noise    
   return(N)
 }
 
