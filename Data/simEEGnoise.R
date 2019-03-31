@@ -18,7 +18,7 @@ simEEGnoise <- function(nTime, Trials, p) {
   dataNoise <- readMat(pathname)
   
   #Load the number of signal sources (brain regions) and number of electrodes recording
-  nElec <- (dim(dataNoise$fwdAllBrain)[1]) / 2
+  nElec <- 128
   nNoiseSources <- dim(dataNoise$fwdAllBrain)[2]
   
   #Generate the results array of appropraite size

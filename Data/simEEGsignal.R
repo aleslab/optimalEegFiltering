@@ -18,7 +18,7 @@ simEEGsignal <- function(nTime, Trials) {
   dataSignal <- readMat(pathname)
 
 #Load the number of signal sources (brain regions) and number of electrodes recording
-  nElec <- (dim(dataSignal$fwdOnlyVisual)[1]) / 2 
+  nElec <- 128
   nSources <- dim(dataSignal$fwdOnlyVisual)[2]
 
 #Generate the results array of appropraite size
