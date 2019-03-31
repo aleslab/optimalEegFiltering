@@ -25,10 +25,10 @@ Extract_GSVD_filter <- function(signalnoise, noise) {
   noise <- t(noise)
   
   # QR decomposition on noise matrix to get correct form for GSVD
-  qrNoise <-qr(noise)
-  rNoise <-qr.R(qrNoise)
+  qrNoise <- qr(noise)
+  rNoise <- qr.R(qrNoise)
   
-  res<-diagp(qr.Q(qrNoise),rNoise)
+  res <- diagp(qr.Q(qrNoise), rNoise)
   qrNoise <- res$Y
   rNoise <- res$X
 
@@ -58,12 +58,12 @@ Extract_GSVD_filter <- function(signalnoise, noise) {
   #I left that out so if more/less noise samples than signal these weights will be wrong.
   
   # Extract the generalized singular values and elimiate any non-real values 
-  gsvalues <- 1-((decomposition$beta) ^ 2 / (decomposition$alpha) ^ 2)
+  gsvalues <- 1 - ((decomposition$beta) ^ 2 / (decomposition$alpha) ^ 2)
   
   gsvalues <- gsvalues[which(is.nan(gsvalues) == FALSE & is.infinite(gsvalues) == FALSE)]
   
   #Anything with negative values gets clamped to 0.  
-  gsvalues <-pmax(0,gsvalues)
+  gsvalues <-pmax(0, gsvalues)
   
   
   # Extract the R matrix from the decomposition and find the inverse 

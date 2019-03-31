@@ -76,3 +76,18 @@ Scenario4_descriptives[, "InputSNR"] <- descriptives(Scenario4_allGsvdSNR$SNR[wh
 Scenario4_descriptives[, "OutputSNR"] <- descriptives(Scenario4_allGsvdSNR$SNR[which(Scenario4_allGsvdSNR$Condition == "Output")])
 Scenario4_descriptives[, "SNRDifference"] <- descriptives(Scenario4_allGsvdSNRDiff$Difference)
 Scenario4_descriptives <- t(Scenario4_descriptives)
+
+#create table of descriptives for Scenario 5
+Scenario5_descriptives <- matrix(nrow = 4, ncol = 9)
+colnames(Scenario5_descriptives) <- c("GSVDMSE", "AveragingMSE", "Distortion", "ResidualNoise", "SDI", "NoiseReduction", "InputSNR", "OutputSNR", "SNRDifference")
+rownames(Scenario5_descriptives) <- c("Mean", "SD", "Min", "Max")
+Scenario5_descriptives[, "GSVDMSE"] <- descriptives(Scenario5_MSE$MSE[which(Scenario5_MSE$Method == "gsvd")])
+Scenario5_descriptives[, "AveragingMSE"] <- descriptives(Scenario5_MSE$MSE[which(Scenario5_MSE$Method == "Averaging")])
+Scenario5_descriptives[, "Distortion"] <- descriptives(Scenario5_allGsvdError$PercentError[which(Scenario5_allGsvdError$Partial == "Distortion")])
+Scenario5_descriptives[, "ResidualNoise"] <- descriptives(Scenario5_allGsvdError$PercentError[which(Scenario5_allGsvdError$Partial == "ResidualNoise")])
+Scenario5_descriptives[, "SDI"] <- descriptives(Scenario5_allGsvdSDI$SDI)
+Scenario5_descriptives[, "NoiseReduction"] <- descriptives(Scenario5_allGsvdNRfactor$NoiseReduction)
+Scenario5_descriptives[, "InputSNR"] <- descriptives(Scenario5_allGsvdSNR$SNR[which(Scenario5_allGsvdSNR$Condition == "Input")])
+Scenario5_descriptives[, "OutputSNR"] <- descriptives(Scenario5_allGsvdSNR$SNR[which(Scenario5_allGsvdSNR$Condition == "Output")])
+Scenario5_descriptives[, "SNRDifference"] <- descriptives(Scenario5_allGsvdSNRDiff$Difference)
+Scenario5_descriptives <- t(Scenario5_descriptives)

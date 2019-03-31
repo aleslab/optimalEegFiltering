@@ -1,3 +1,5 @@
+library(geigen)
+
 signal <- function(i, j, k) {
   # the purpose of this function is to simulate the signal of eeg data. The input i is
   # the number of sensors used to record data, j is the number of time points at which 
@@ -871,6 +873,212 @@ ggplot(data = Scenario4_allGsvdNRfactor, aes(x = as.factor(Trials), y = NoiseRed
 #view table of SNR values
 view(Scenario4_allGsvdSNR)
 
+simEEGsignal <- function(nTime, Trials) {
+  # The purpose of this function is generate a signal similar in structure to one
+  # obtained from an EEG of evoked potentials in the visual areas of the brain.
+  # the inputs are the number of time points, nTime, and number of Trials,
+  # the resulting array will contain. The output is the simulated signal.
+  
+  # input checks 
+  if (is.numeric(nTime) == FALSE | is.numeric(Trials) == FALSE) {
+    stop("Non-numeric arguments")
+  }
+  
+  if (nTime <= 0 | Trials <= 0) {stop("Non-positive arguments")}
+  
+  if (nTime != round(nTime) | Trials != round(Trials)) {stop("Non-integer arguments")}  
+  
+  #Load visual evoked potential data  
+  pathname <- file.path("eegForwardData", "fwdOnlyVisual.mat")
+  dataSignal <- readMat(pathname)
+  
+  #Load the number of signal sources (brain regions) and number of electrodes recording
+  nElec <- (dim(dataSignal$fwdOnlyVisual)[1]) / 2 
+  nSources <- dim(dataSignal$fwdOnlyVisual)[2]
+  
+  #Generate the results array of appropraite size
+  simBrainSignal <- array(dim = c(nElec, nTime, Trials))
+  
+  # loop to ensure each trial had different random noise  
+  for (i in 1:Trials) {
+    
+    #generate random noise of the correct size to make the results matrix nElec x nTime    
+    randomActivity <- array(rnorm(nSources * nTime , mean = 0, sd = 1),dim = c(nSources, nTime))
+    #multiply the signal by the random noise and add signal to results arrat   
+    simBrainSignal[,,i] <- dataSignal$fwdOnlyVisual[1:length(nElec),] %*% randomActivity
+    
+  }
+  
+  #return the simulated signal
+  return(simBrainSignal)
+}
+
+simEEGsignal <- function(nTime, Trials) {
+  # The purpose of this function is generate a signal similar in structure to one
+  # obtained from an EEG of evoked potentials in the visual areas of the brain.
+  # the inputs are the number of time points, nTime, and number of Trials,
+  # the resulting array will contain. The output is the simulated signal.
+  
+  # input checks 
+  if (is.numeric(nTime) == FALSE | is.numeric(Trials) == FALSE) {
+    stop("Non-numeric arguments")
+  }
+  
+  if (nTime <= 0 | Trials <= 0) {stop("Non-positive arguments")}
+  
+  if (nTime != round(nTime) | Trials != round(Trials)) {stop("Non-integer arguments")}  
+  
+  #Load visual evoked potential data  
+  pathname <- file.path("eegForwardData", "fwdOnlyVisual.mat")
+  dataSignal <- readMat(pathname)
+  
+  #Load the number of signal sources (brain regions) and number of electrodes recording
+  nElec <- (dim(dataSignal$fwdOnlyVisual)[1]) / 2 
+  nSources <- dim(dataSignal$fwdOnlyVisual)[2]
+  
+  #Generate the results array of appropraite size
+  simBrainSignal <- array(dim = c(nElec, nTime, Trials))
+  
+  # loop to ensure each trial had different random noise  
+  for (i in 1:Trials) {
+    
+    #generate random noise of the correct size to make the results matrix nElec x nTime    
+    randomActivity <- array(rnorm(nSources * nTime , mean = 0, sd = 1),dim = c(nSources, nTime))
+    #multiply the signal by the random noise and add signal to results arrat   
+    simBrainSignal[,,i] <- dataSignal$fwdOnlyVisual[1:length(nElec),] %*% randomActivity
+    
+  }
+  
+  #return the simulated signal
+  return(simBrainSignal)
+}
+
+
+#initialize some variables to hold output
+Scenario5_allGsvdMse <-data.frame()
+Scenario5_allMeanMse <- data.frame()
+Scenario5_allGsvdError <- data.frame()
+Scenario5_allGsvdSNR <- data.frame()
+Scenario5_allGsvdSDI <- data.frame()
+Scenario5_allGsvdNRfactor <- data.frame()
+Scenario5_allGsvdSNRDiff <- data.frame()
+
+# set variable lists for loops
+nElec <- 128 
+nTime <- 600
+trialList <-c(25, 50, 100, 200, 400)
+noiseList <-c(5, 10, 20)
+
+# loop to create results for all conditions
+for (nTrials in trialList) {
+  for (noiseLevel in noiseList) {
+    
+    #print statement to keep track of loop progress
+    print(c(nTrials, noiseLevel))
+    
+    #Generate a simulation
+    thisSignal <-  simEEGsignal(nTime = 600, Trials = nTrials)
+    thisNoiseForSignal <- simEEGnoise(nTime = 600, Trials = nTrials, p = 0.05)
+    
+    NoiseOnly <-simEEGnoise(nTime = 600, Trials = nTrials, p = 0.05)
+    
+    thisNoise <- thisNoiseForSignal * noiseLevel
+    thisSignalPlusNoise <- thisSignal + thisNoise
+    noiseOnlyData <- NoiseOnly * noiseLevel
+    
+    #Apply filter to data
+    filter <- Extract_GSVD_filter(thisSignalPlusNoise, noiseOnlyData)
+    filteredSignalPlusNoise <- applyFilterTo3dData(filter, thisSignalPlusNoise)
+    filteredSignal <- applyFilterTo3dData(filter, thisSignal)
+    filteredNoise <-  applyFilterTo3dData(filter, thisNoise)
+    
+    #Take mean over trials.  
+    thisSignalMean <- rowMeans(thisSignal, dims = 2)
+    thisSignalPlusNoiseMean <- rowMeans(thisSignalPlusNoise, dims = 2)
+    thisNoiseMean <- rowMeans(thisNoise, dims = 2)
+    filteredSignalPlusNoise<- rowMeans(filteredSignalPlusNoise, dims = 2) 
+    filteredSignal <- rowMeans(filteredSignal, dims = 2) 
+    filteredSignalNoise <- rowMeans(filteredNoise, dims = 2) 
+    
+    #Calculate measures for the GSVD filtered data
+    thisFilteredMSE <- mse(filteredSignalPlusNoise, thisSignalMean)
+    thisDistortion <- mse(filteredSignal, thisSignalMean)
+    thisResidual <- mean(filteredSignalNoise^2)
+    thisOriginal <- mean(thisNoiseMean^2)
+    thisInSNR <- mean((thisSignal^2) / (thisNoise^2))
+    thisOutSNR <- mean((filteredSignal^2) / thisResidual)
+    thisSDI <- thisDistortion / mean(thisSignal^2)
+    thisNRfactor <- thisOriginal / thisResidual
+    
+    #Store measures in data frames for later graphing
+    Scenario5_allGsvdSNR <- rbind(Scenario5_allGsvdSNR, data.frame("Condition" =
+                                                                     "Input", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
+                                                                   "SNR" = thisInSNR))
+    Scenario5_allGsvdSNR <- rbind(Scenario5_allGsvdSNR, data.frame("Condition" =
+                                                                     "Output", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
+                                                                   "SNR" = thisOutSNR))
+    Scenario5_allGsvdSNRDiff <- rbind(Scenario5_allGsvdSNRDiff, data.frame("Trials" = nTrials,
+                                                                           "NoiseLevel" = noiseLevel, "Difference" = thisInSNR - thisOutSNR))
+    Scenario5_allGsvdSDI <- rbind(Scenario5_allGsvdSDI, data.frame("Trials" = nTrials, 
+                                                                   "NoiseLevel" = noiseLevel, "SDI"= thisSDI))
+    Scenario5_allGsvdNRfactor <- rbind(Scenario5_allGsvdNRfactor, data.frame("Trials" = nTrials, 
+                                                                             "NoiseLevel" = noiseLevel, "NoiseReduction" = thisNRfactor))
+    Scenario5_allGsvdMse <-rbind(Scenario5_allGsvdMse, data.frame("Method" = "gsvd", 
+                                                                  "Trials" = nTrials, "NoiseLevel" = noiseLevel, "MSE" = thisFilteredMSE))
+    Scenario5_allGsvdError <-rbind(Scenario5_allGsvdError, data.frame("Partial" = "Distortion", "Trials" = nTrials, 
+                                                                      "NoiseLevel" = noiseLevel, "PercentError" = (thisDistortion / (thisDistortion + thisResidual)) * 100))
+    Scenario5_allGsvdError<- rbind(Scenario5_allGsvdError, data.frame("Partial" = "ResidualNoise", "Trials" = nTrials,
+                                                                      "NoiseLevel" = noiseLevel, "PercentError" = (thisResidual / (thisDistortion + thisResidual)) * 100))
+    
+    
+    #Calculate the values if NO filtering is applied
+    thisMeanMSE <- mse(thisSignalPlusNoiseMean,thisSignalMean)
+    Scenario5_allMeanMse <-rbind(Scenario5_allMeanMse, data.frame("Method" = "Averaging",
+                                                                  "Trials" = nTrials, "NoiseLevel" = noiseLevel, "MSE" = thisMeanMSE))
+  }
+  
+}
+
+# Combine MSE's into one table for graphing purposes
+Scenario5_MSE <- data.frame()
+Scenario5_MSE <- rbind(Scenario5_allGsvdMse, Scenario5_allMeanMse)
+
+#create MSE plot
+ggplot(data = Scenario5_MSE, aes(x = as.factor(Trials), y = MSE, color = Method)) +
+  geom_point() +
+  facet_wrap(~ as.factor(NoiseLevel), nrow = 1, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "MSE Comparison Between Methods as Function of Number of Trials 
+       Faceted by Noise Level for Scenario 5", x = "Number of Trials", y = "MSE", color = "Method") +
+  theme(plot.title = element_text(hjust = 0.4))
+
+# create MSE breakdown plot
+ggplot(data = Scenario5_allGsvdError, aes(x = as.factor(Trials), y = PercentError, fill = Partial)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~ as.factor(NoiseLevel), nrow = 1, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "Breakdown of MSE by Trial Size Faceted by Noise Level for Scenario 5", x = "Number of Trials",
+       y = " Percent of MSE", fill = "Part of MSE") +
+  theme(plot.title = element_text(hjust = 0.2))
+
+# create SDI plot
+ggplot(data = Scenario5_allGsvdSDI, aes(x = as.factor(Trials), y = SDI, color = as.factor(NoiseLevel))) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Signal Distortion Index in Scenario 5", x = "Number of Trials", 
+       y = "Signal Distortion Index", color = "Noise Level") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Create Noise Reduction plot
+ggplot(data = Scenario5_allGsvdNRfactor, aes(x = as.factor(Trials), y = NoiseReduction, color = as.factor(NoiseLevel))) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Noise Reduction in Scenario 5", x = "Number of Trials", 
+       y = "Noise Reduction Factor", color = "Noise Level") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+view(Scenario5_allGsvdSNR)
+
 # calculate descriptive statistics for result measures
 descriptives <- function(v) {
   # the purpose of this function is to calculate basic descriptive statistics
@@ -953,3 +1161,18 @@ Scenario4_descriptives[, "OutputSNR"] <- descriptives(Scenario4_allGsvdSNR$SNR[w
 Scenario4_descriptives[, "SNRDifference"] <- descriptives(Scenario4_allGsvdSNRDiff$Difference)
 Scenario4_descriptives <- t(Scenario4_descriptives)
 view(Scenario4_descriptives)
+
+#create table of descriptives for Scenario 5
+Scenario5_descriptives <- matrix(nrow = 4, ncol = 9)
+colnames(Scenario5_descriptives) <- c("GSVDMSE", "AveragingMSE", "Distortion", "ResidualNoise", "SDI", "NoiseReduction", "InputSNR", "OutputSNR", "SNRDifference")
+rownames(Scenario5_descriptives) <- c("Mean", "SD", "Min", "Max")
+Scenario5_descriptives[, "GSVDMSE"] <- descriptives(Scenario5_MSE$MSE[which(Scenario5_MSE$Method == "gsvd")])
+Scenario5_descriptives[, "AveragingMSE"] <- descriptives(Scenario5_MSE$MSE[which(Scenario5_MSE$Method == "Averaging")])
+Scenario5_descriptives[, "Distortion"] <- descriptives(Scenario5_allGsvdError$PercentError[which(Scenario5_allGsvdError$Partial == "Distortion")])
+Scenario5_descriptives[, "ResidualNoise"] <- descriptives(Scenario5_allGsvdError$PercentError[which(Scenario5_allGsvdError$Partial == "ResidualNoise")])
+Scenario5_descriptives[, "SDI"] <- descriptives(Scenario5_allGsvdSDI$SDI)
+Scenario5_descriptives[, "NoiseReduction"] <- descriptives(Scenario5_allGsvdNRfactor$NoiseReduction)
+Scenario5_descriptives[, "InputSNR"] <- descriptives(Scenario5_allGsvdSNR$SNR[which(Scenario5_allGsvdSNR$Condition == "Input")])
+Scenario5_descriptives[, "OutputSNR"] <- descriptives(Scenario5_allGsvdSNR$SNR[which(Scenario5_allGsvdSNR$Condition == "Output")])
+Scenario5_descriptives[, "SNRDifference"] <- descriptives(Scenario5_allGsvdSNRDiff$Difference)
+Scenario5_descriptives <- t(Scenario5_descriptives)
