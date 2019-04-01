@@ -5,7 +5,8 @@ library(scales)
 #create MSE plot
 ggplot(data = Scenario3_MSE, aes(x = as.factor(Trials), y = MSE, color = Method)) +
   geom_point() +
-  facet_wrap(~ as.factor(NoiseLevel), nrow = 1, scales = "free_y") +
+  scale_y_log10() +
+  facet_wrap(~ as.factor(NoiseLevel), nrow = 2) +
   theme_minimal() +
   labs(title = "MSE Comparison Between Methods as Function of Number of Trials 
        Faceted by Noise Level for Scenario 3", x = "Number of Trials", y = "MSE", color = "Method") +
@@ -14,7 +15,7 @@ ggplot(data = Scenario3_MSE, aes(x = as.factor(Trials), y = MSE, color = Method)
 # create MSE breakdown plot
 ggplot(data = Scenario3_allGsvdError, aes(x = as.factor(Trials), y = PercentError, fill = Partial)) +
   geom_bar(stat = "identity", position = "dodge") +
-  facet_wrap(~ as.factor(NoiseLevel), nrow = 1, scales = "free_y") +
+  facet_wrap(~ as.factor(NoiseLevel), nrow = 2) +
   theme_minimal() +
   labs(title = "Breakdown of MSE by Trial Size Faceted by Noise Level for Scenario 3", x = "Number of Trials",
        y = " Percent of MSE", fill = "Part of MSE") +
@@ -23,6 +24,7 @@ ggplot(data = Scenario3_allGsvdError, aes(x = as.factor(Trials), y = PercentErro
 # create SDI plot
 ggplot(data = Scenario3_allGsvdSDI, aes(x = as.factor(Trials), y = SDI, color = as.factor(NoiseLevel))) +
   geom_point() +
+  scale_y_log10() +
   theme_minimal() +
   labs(title = "Signal Distortion Index in Scenario 3", x = "Number of Trials", 
        y = "Signal Distortion Index", color = "Noise Level") +
@@ -31,7 +33,18 @@ ggplot(data = Scenario3_allGsvdSDI, aes(x = as.factor(Trials), y = SDI, color = 
 #create noise reduction factor plot
 ggplot(data = Scenario3_allGsvdNRfactor, aes(x = as.factor(Trials), y = NoiseReduction, color = as.factor(NoiseLevel))) +
   geom_point() +
+  scale_y_log10() + 
   theme_minimal() +
   labs(title = "Noise Reduction in Scenario 3", x = "Number of Trials", 
        y = "Noise Reduction Factor", color = "Noise Level") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+#create SNR plot
+ggplot(data = Scenario3_allSNR, aes(x = as.factor(Trials), y = SNR, color = Condition)) +
+  geom_point() +
+  scale_y_log10() +
+  facet_wrap(~ as.factor(NoiseLevel), nrow = 2) +
+  theme_minimal() +
+  labs(title = "Signal-to-Noise Ratio Comparison Between Methods as a 
+       Function of Number of Trials and Faceted by Noise Level for Scenario 3", x = "Number of Trials", y = "SNR", color = "Condition") +
   theme(plot.title = element_text(hjust = 0.5))

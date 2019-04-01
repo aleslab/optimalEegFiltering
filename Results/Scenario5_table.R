@@ -5,16 +5,17 @@ set.seed(123)
 Scenario5_allGsvdMse <-data.frame()
 Scenario5_allMeanMse <- data.frame()
 Scenario5_allGsvdError <- data.frame()
-Scenario5_allGsvdSNR <- data.frame()
+Scenario5_allSNR <- data.frame()
 Scenario5_allGsvdSDI <- data.frame()
 Scenario5_allGsvdNRfactor <- data.frame()
 Scenario5_allGsvdSNRDiff <- data.frame()
+Scenario5_allMeanSNRDiff <- data.frame()
 
 # set variable lists for loops
 nElec <- 128 
 nTime <- 600
 trialList <-c(25, 50, 100, 200, 400)
-noiseList <-c(5, 10, 20)
+noiseList <-c(0.05, 0.1, 0.2, 0.4, 0.8)
 
 # loop to create results for all conditions
 for (nTrials in trialList) {
@@ -25,13 +26,13 @@ for (nTrials in trialList) {
     
     #Generate a simulation
     thisSignal <-  simEEGsignal(nTime = 600, Trials = nTrials)
-    thisNoiseForSignal <- simEEGnoise(nTime = 600, Trials = nTrials, p = 0.05)
+    thisNoiseForSignal <- simEEGnoise(nTime = 600, Trials = nTrials, p = noiseLevel)
     
-    NoiseOnly <-simEEGnoise(nTime = 600, Trials = nTrials, p = 0.05)
+    NoiseOnly <-simEEGnoise(nTime = 600, Trials = nTrials, p = noiseLevel)
     
-    thisNoise <- thisNoiseForSignal * noiseLevel
+    thisNoise <- thisNoiseForSignal
     thisSignalPlusNoise <- thisSignal + thisNoise
-    noiseOnlyData <- NoiseOnly * noiseLevel
+    noiseOnlyData <- NoiseOnly
     
     #Apply filter to data
     filter <- Extract_GSVD_filter(thisSignalPlusNoise, noiseOnlyData)
@@ -52,20 +53,20 @@ for (nTrials in trialList) {
     thisDistortion <- mse(filteredSignal, thisSignalMean)
     thisResidual <- mean(filteredSignalNoise^2)
     thisOriginal <- mean(thisNoiseMean^2)
-    thisInSNR <- mean((thisSignal^2) / (thisNoise^2))
-    thisOutSNR <- mean((filteredSignal^2) / thisResidual)
+    thisInSNR <- mean(thisSignal^2) / mean(thisNoise^2)
+    thisOutSNR <- mean(filteredSignal^2) / thisResidual
     thisSDI <- thisDistortion / mean(thisSignal^2)
     thisNRfactor <- thisOriginal / thisResidual
     
     #Store measures in data frames for later graphing
-    Scenario5_allGsvdSNR <- rbind(Scenario5_allGsvdSNR, data.frame("Condition" =
+    Scenario5_allSNR <- rbind(Scenario5_allSNR, data.frame("Condition" =
                             "Input", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
                             "SNR" = thisInSNR))
-    Scenario5_allGsvdSNR <- rbind(Scenario5_allGsvdSNR, data.frame("Condition" =
-                            "Output", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
+    Scenario5_allSNR <- rbind(Scenario5_allSNR, data.frame("Condition" =
+                            "GsvdOutput", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
                             "SNR" = thisOutSNR))
     Scenario5_allGsvdSNRDiff <- rbind(Scenario5_allGsvdSNRDiff, data.frame("Trials" = nTrials,
-                                "NoiseLevel" = noiseLevel, "Difference" = thisInSNR - thisOutSNR))
+                                "NoiseLevel" = noiseLevel, "Difference" = thisOutSNR - thisInSNR))
     Scenario5_allGsvdSDI <- rbind(Scenario5_allGsvdSDI, data.frame("Trials" = nTrials, 
                              "NoiseLevel" = noiseLevel, "SDI"= thisSDI))
     Scenario5_allGsvdNRfactor <- rbind(Scenario5_allGsvdNRfactor, data.frame("Trials" = nTrials, 
@@ -80,6 +81,12 @@ for (nTrials in trialList) {
     
     #Calculate the values if NO filtering is applied
     thisMeanMSE <- mse(thisSignalPlusNoiseMean,thisSignalMean)
+    thisMeanOutSNR <- mean(thisSignalPlusNoiseMean^2) / thisMeanMSE
+    Scenario5_allSNR <- rbind(Scenario5_allSNR, data.frame("Condition" =
+                        "MeanOutput", "Trials" = nTrials, "NoiseLevel" = noiseLevel,
+                         "SNR" = thisMeanOutSNR))
+    Scenario5_allMeanSNRDiff <- rbind(Scenario5_allMeanSNRDiff, data.frame("Trials" = nTrials,
+                                "NoiseLevel" = noiseLevel, "Difference" = thisMeanOutSNR - thisInSNR))
     Scenario5_allMeanMse <-rbind(Scenario5_allMeanMse, data.frame("Method" = "Averaging",
                            "Trials" = nTrials, "NoiseLevel" = noiseLevel, "MSE" = thisMeanMSE))
   }
