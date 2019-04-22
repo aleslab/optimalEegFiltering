@@ -5,7 +5,7 @@ Extract_GSVD_filter <- function(signalnoise, noise) {
   # signalnoise: the array containing both the signal and noise information
   # noise: an array containing just noise information
   # Output:
-  # wfilter: the weiner filter to be applied to simulated data
+  # wfilter: the wiener filter to be applied to simulated data
   
   # Input checks
   if(is.array(noise) == FALSE) stop("Invalid arguments")
@@ -31,6 +31,7 @@ Extract_GSVD_filter <- function(signalnoise, noise) {
   res <- diagp(qr.Q(qrNoise), rNoise)
   qrNoise <- res$Y
   rNoise <- res$X
+  
 
 # Setting infinite or NA values to 0  
   for (i in 1:length(rNoise)) {
@@ -41,9 +42,11 @@ Extract_GSVD_filter <- function(signalnoise, noise) {
   #QR decomposition of signal matrix to get correct form for GSVD
   qrSignal <- qr(signalnoise)
   rSignal  <- qr.R(qrSignal)
-  res<-diagp(qr.Q(qrSignal),rSignal)
+  
+  res<-diagp(qr.Q(qrSignal), rSignal)
   qrSignal <- res$Y
   rSignal <- res$X
+  
   
 # Setting infinite and NA values to 0  
   for (i in 1:length(rSignal)) {
@@ -52,13 +55,11 @@ Extract_GSVD_filter <- function(signalnoise, noise) {
   }
   
   # Perform gsvd on two altered matrices
-  decomposition <- gsvd(rSignal,rNoise)
+  decomposition <- gsvd(rSignal, rNoise)
   # The weighting is  1- Noise/Signal ratio
-  #WARNING THE WEIGHT Does not Incorparate matrix size yet! 
-  #I left that out so if more/less noise samples than signal these weights will be wrong.
   
   # Extract the generalized singular values and elimiate any non-real values 
-  gsvalues <- 1 - ((decomposition$beta) ^ 2 / (decomposition$alpha) ^ 2)
+  gsvalues <- 1 - ((m / p) * ((decomposition$beta) ^ 2 / (decomposition$alpha) ^ 2))
   
   gsvalues <- gsvalues[which(is.nan(gsvalues) == FALSE & is.infinite(gsvalues) == FALSE)]
   

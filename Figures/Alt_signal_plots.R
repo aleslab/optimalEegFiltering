@@ -1,12 +1,5 @@
-# load graphing packages
-library(ggplot2)
-library(scales)
-
 # create plot for MSE measures
-noise1.labs <- c("NL = 15", "NL = 30", "NL = 60", "NL = 120", "NL = 240")
-names(noise1.labs) <- c("15", "30", "60", "120", "240")
-
-ggplot(data = Scenario1_MSE, aes(x = as.factor(Trials), y = MSE, color = Method)) +
+ggplot(data = tScenario1_MSE, aes(x = as.factor(Trials), y = MSE, color = Method)) +
   geom_point() +
   scale_y_log10() +
   facet_wrap(~ as.factor(NoiseLevel), nrow = 2) +
@@ -16,7 +9,7 @@ ggplot(data = Scenario1_MSE, aes(x = as.factor(Trials), y = MSE, color = Method)
   theme(plot.title = element_text(hjust = 0.5))
 
 #create plot for MSE breakdown
-ggplot(data = Scenario1_allGsvdError, aes(x = as.factor(Trials), y = PercentError, fill = Partial)) +
+ggplot(data = tScenario1_allGsvdError, aes(x = as.factor(Trials), y = PercentError, fill = Partial)) +
   geom_bar(stat = "identity", position = "dodge") +
   facet_wrap(~ as.factor(NoiseLevel), nrow = 2) +
   theme_minimal() +
@@ -25,7 +18,7 @@ ggplot(data = Scenario1_allGsvdError, aes(x = as.factor(Trials), y = PercentErro
   theme(plot.title = element_text(hjust = 0.2))
 
 # create SDI plot
-ggplot(data = Scenario1_allGsvdSDI, aes(x = as.factor(Trials), y = SDI, color = as.factor(NoiseLevel))) +
+ggplot(data = tScenario1_allGsvdSDI, aes(x = as.factor(Trials), y = SDI, color = as.factor(NoiseLevel))) +
   geom_point() +
   scale_y_log10()+
   theme_minimal() +
@@ -34,7 +27,7 @@ ggplot(data = Scenario1_allGsvdSDI, aes(x = as.factor(Trials), y = SDI, color = 
   theme(plot.title = element_text(hjust = 0.5))
 
 # Create Noise Reduction Factor plot
-ggplot(data = Scenario1_allGsvdNRfactor, aes(x = as.factor(Trials), y = NoiseReduction, color = as.factor(NoiseLevel))) +
+ggplot(data = tScenario1_allGsvdNRfactor, aes(x = as.factor(Trials), y = NoiseReduction, color = as.factor(NoiseLevel))) +
   geom_point() +
   scale_y_log10() +
   theme_minimal() +
@@ -43,7 +36,7 @@ ggplot(data = Scenario1_allGsvdNRfactor, aes(x = as.factor(Trials), y = NoiseRed
   theme(plot.title = element_text(hjust = 0.5))
 
 # Create SNR plot
-ggplot(data = Scenario1_allSNR, aes(x = as.factor(Trials), y = SNR, color = Condition)) +
+ggplot(data = tScenario1_allSNR, aes(x = as.factor(Trials), y = SNR, color = Condition)) +
   geom_point() +
   scale_y_log10() +
   facet_wrap(~ as.factor(NoiseLevel), nrow = 2) +
