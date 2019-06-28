@@ -64,8 +64,8 @@ if nargin < 2
         noiseWin = '[ ]';
     end
     
-    geometry = {[2 1] [2 1] [2 2] [2 2]};
-    geomvert = [1 1 1 1];
+    geometry = {[2 1] [2 1] [2 2]};
+    geomvert = [1 1 1 ];
 
     uilist = {{ 'style' 'text' 'string' 'Noise Window latency range ([min max] in ms):' } ...
                {'style', 'edit', 'string', noiseWin,'tag','noiseWin'} ...
@@ -73,8 +73,8 @@ if nargin < 2
               {'style', 'edit', 'string', sigWin,'tag','sigWin'} ...
               { 'style' 'text' 'string' 'Choose What to Optimize: ' } ...
               { 'style', 'popupmenu', 'string', 'Minimize Squared Error|Maximize SNR','value',1,'tag','method' } ...
-              { 'style' 'text' 'string' 'What dimension to filter: ' } ...
-              { 'style', 'popupmenu', 'string', 'Spatial (channels)','value',1,'tag','dimensionToFilter' } ...
+%               { 'style' 'text' 'string' 'What dimension to filter: ' } ...
+%               { 'style', 'popupmenu', 'string', 'Spatial (channels)','value',1,'tag','dimensionToFilter' } ...
               };
 
     [result userdata err structOut] = inputgui('geometry', geometry, 'geomvert', geomvert, 'uilist', uilist, 'title', 'Optimal Subspace Filter the data -- pop_optimalsubspacefilter()', 'helpcom', 'pophelp(''pop_optimalsubspacefilter'')');
@@ -83,7 +83,7 @@ if nargin < 2
     methodList={'mse','maxsnr'};
     method = methodList{structOut.method};
     dimList = {'channel','time'};
-    dimensionToFilter = dimList{structOut.dimensionToFilter};
+    dimensionToFilter = 'channel';%dimList{structOut.dimensionToFilter};
     noiseWin = str2num(structOut.noiseWin);
     sigWin   = str2num(structOut.sigWin);
     
@@ -128,14 +128,64 @@ sigDat = EEG.data(:,sigPointRange,:);
 noiseDat = EEG.data(:,noisePointRange,:);
 
 if strcmpi('channel',dimensionToFilter) %This section does filtering by channel components
-[filterWeights, ~, ~, filtProp] = gsvdFilter(sigDat,noiseDat,method);
+[filterWeights, filteredSig, filteredNoise, filtProp] = gsvdFilter(sigDat,noiseDat,method);
 
 EEG.data(:,:) = filterWeights*EEG.data(:,:);
 
+% In future try to return info about the filter using the ica fields.  
+% EEG.icaweights = filterWeights(:,end:-1:1);
+% EEG.icasphere  = eye(size(filterWeights));
+% EEG.icawinv    = filtProp.filterBasis(:,end:-1:1);
+% EEG.icachansind =  1:EEG.nbchan;
+        
+        
 elseif strcmpi('time',dimensionToFilter) %This section does filtering by channel components
 error('pop_optimalsubspacefilter: Temporal filtering not yet implemented')
     
 end
+
+
+%Calculate output metrics on single trial data
+sigVar = var(sigDat(:));
+noiseVar = var(noiseDat(:));
+filtSigVar = var(filteredSig(:));
+filtNoiseVar = var(filteredNoise(:));
+
+inputSNR = sigVar/noiseVar;
+outputSNR = filtSigVar/filtNoiseVar;
+noiseReductionFactor = noiseVar/filtNoiseVar;
+
+
+%Calculate output metrics on the average 
+
+meanSigDat = mean(sigDat,3);
+meanNoiseDat = mean(noiseDat,3);
+meanFiltSig = mean(filteredSig,3);
+meanFiltNoise = mean(filteredNoise,3);
+
+
+meanSigVar = var(meanSigDat(:));
+meanNoiseVar = var(meanNoiseDat(:))
+meanFiltSigVar = var(meanFiltSig(:));
+meanFiltNoiseVar = var(meanFiltNoise(:))
+
+meanInputSNR = meanSigVar/meanNoiseVar;
+meanOutputSNR = meanFiltSigVar/meanFiltNoiseVar;
+meanNoiseReductionFactor = meanNoiseVar/meanFiltNoiseVar;
+
+
+numNoiseDim = sum(filtProp.filterSNR==0);
+fprintf('pop_optimalsubspacefilter() - finding optimal subspace filter. Using %d dimensions\n', filtProp.nPCA)
+fprintf('pop_optimalsubspacefilter() - Number noise only dimensions: %g.\n', numNoiseDim)
+
+fprintf('pop_optimalsubspacefilter() - Statistics for single trials:\n')
+fprintf('pop_optimalsubspacefilter() - Noise Reduction factor: %g.\n', noiseReductionFactor)
+fprintf('pop_optimalsubspacefilter() - Input SNR: %g.  Output SNR: %g, SNR Improvement factor: %g \n', inputSNR, outputSNR, outputSNR/inputSNR)
+
+fprintf('pop_optimalsubspacefilter() - Statisitcs after averaging %g trials:\n', size(sigDat,3))
+fprintf('pop_optimalsubspacefilter() - Noise Reduction factor: %g.\n', meanNoiseReductionFactor)
+fprintf('pop_optimalsubspacefilter() - Input SNR: %g.  Output SNR: %g, SNR Improvement factor: %g \n', meanInputSNR, meanOutputSNR, meanOutputSNR/meanInputSNR)
+
 
 % fprintf('pop_optimalsubspacefilter() - performing %d point %s filtering.\n', filtorder + 1, filterTypeArray{revfilt + 1, length(edgeArray)})
 % fprintf('pop_optimalsubspacefilter() - transition band width: %.4g Hz\n', df)

@@ -46,7 +46,7 @@ function vers = eegplugin_optimalsubspace(fig, trystrs, catchstrs)
 
     % find import data menu
     % ---------------------
-    menu = findobj(fig, 'tag', 'filter');
+    menu = findobj(fig, 'tag', 'tools');
 
     % menu callbacks
     % --------------
@@ -54,8 +54,10 @@ function vers = eegplugin_optimalsubspace(fig, trystrs, catchstrs)
 
     % create menus if necessary
     % -------------------------
-    uimenu( menu, 'Label', 'Optimal Subspace Filter', ...
+    submenu = uimenu( menu, 'Label', 'Optimal Subspace Filters', 'separator', 'on');
+
+    uimenu( submenu, 'Label', 'Filter Data Using Optimal Subspace', ...
         'CallBack', comoptimalsubspacefilter,...
-        'Separator', 'on', 'position', 1,'userdata', 'continuous:off');
+        'Separator', 'off', 'position', 1,'userdata', 'continuous:off');
 
   

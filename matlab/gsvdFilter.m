@@ -21,7 +21,7 @@ comps2keep = diag(s)./sum(diag(s))>1e-6;
 maxComp = min([size(comps2keep,1) size(signal2d,1) size(noise2d,1)]);
 
 uFilter = u(:,comps2keep(1:maxComp));
-svdNumCompsUsed = num2str(sum(comps2keep(1:maxComp)));
+svdNumCompsUsed = (sum(comps2keep(1:maxComp)));
 
 [U,V,filterBasis,C,S] = gsvd(signal2d*uFilter,noise2d*uFilter,0);
 
@@ -86,6 +86,7 @@ if nargout>=4
     filterProperties.filterSNR     = filterSNR;
     filterProperties.uFilter       = uFilter;
     filterProperties.filterBasis   = uFilter*filterBasis;
+    filterProperties.nPCA   = svdNumCompsUsed;
     
 end
 
