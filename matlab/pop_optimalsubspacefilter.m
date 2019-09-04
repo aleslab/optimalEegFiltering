@@ -9,8 +9,17 @@
 % Optional inputs:
 %   method - {['mse', 'maxsnr'} Optimize squared error ('mse') or SNR
 %            ('maxsnr'). Default: 'mse'
-%   dimensionToFilter - {'channel','time'} What dimension to use for
-%                       filtering. Default: 'channel'
+%   noiseWin - [min_ms max_ms] Window to use to extract NOISE ONLY data.
+%              Important: Must contain noise and only noise
+%              Default:[xmin 0]
+%
+%   sigWin - [min_ms max_ms] Window to use to extract SIGNAL PLUS NOISE data.
+%              Default:[0 xmax]
+%              
+%   dimensionToFilter - {'channel'} What dimension to use for
+%                       filtering. Default: 'channel' (Only one
+%                       implemented)
+
 %
 % Outputs:
 %   EEG       - filtered EEGLAB EEG structure
